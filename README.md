@@ -2,7 +2,7 @@ This is a command line Spring Boot Application to be used by the ETL team to loa
 
 Usage:
 
-java -jar spatialdataloader-0.0.1-SNAPSHOT.jar --data=<csv input> --ds=jdbc:postgresql://localhost/<dbname> --user=<user> --pwd=<password>
+java -jar spatialdataloader-0.0.1-SNAPSHOT.jar --data=[csv input] --ds=jdbc:postgresql://localhost/[dbname] --user=[user] --pwd=[password]
 
 --data - The path to the csv file that contains the path to individual layers, custom layer tag, 2 digit state code if partitioned by state
 --ds - Postgres datasource url
