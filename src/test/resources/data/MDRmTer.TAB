@@ -1,0 +1,11 @@
+!table
+!version 450
+!charset WindowsLatin1
+
+Definition Table
+  Type NATIVE Charset "WindowsLatin1"
+  Fields 4
+    OBJECTID Integer ;
+    County Char (35) ;
+    Terr_code Char (3) ;
+    Type Char (4) ;
