@@ -40,14 +40,19 @@ public class CustomTerritoryDBWriter {
     private String insertSQL;
 
 
-    public void writeToDB(List<CustomTerritory> customTerritories) {
+    public boolean writeToDB(List<CustomTerritory> customTerritories) {
         List<List<CustomTerritory>> batches = Lists.partition(customTerritories, batchSize);
 
         for (List<CustomTerritory> itemBatch : batches) {
             SqlParameterSource[] batch = SqlParameterSourceUtils.createBatch(itemBatch.toArray());
-            int[] updateCounts = batchTemplate.batchUpdate(insertSQL, batch);
-
+            try {
+                batchTemplate.batchUpdate(insertSQL, batch);
+            } catch (Exception e) {
+                logger.error("Exception while inserting data into table. Message: " + e.getMessage());
+                return false;
+            }
         }
+        return true;
     }
 
     public void debugDBInsert(List<CustomTerritory> customTerritories) {

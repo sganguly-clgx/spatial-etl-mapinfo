@@ -48,7 +48,7 @@ public class SpatialDataLoaderApplication implements CommandLineRunner {
         int exitCode = dataService.startLoad(csvFile, debugMode);
 
         if (exitCode == 1) {
-            throw new ETLException("Failed to load all the data layers. Please check the details below");
+            throw new ETLException("Failed: All data layers are not loaded successfully.");
         }
         System.exit(exitCode);
 
