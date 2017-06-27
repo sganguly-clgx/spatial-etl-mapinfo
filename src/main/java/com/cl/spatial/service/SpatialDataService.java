@@ -1,5 +1,6 @@
 package com.cl.spatial.service;
 
+import com.cl.spatial.cleanup.CleanupTable;
 import com.cl.spatial.processor.SpatialDataProcessor;
 import com.cl.spatial.reader.MapInfoLayerReader;
 import com.cl.spatial.reader.MapInfoReader;
@@ -30,6 +31,9 @@ import java.util.List;
 public class SpatialDataService {
 
     private final Logger logger = LoggerFactory.getLogger(SpatialDataService.class);
+
+    @Autowired
+    private CleanupTable cleanup;
 
     @Autowired
     private MapInfoReader reader;
@@ -66,19 +70,23 @@ public class SpatialDataService {
     }
 
     private List<LoadingStatusInfo> loadDataToDB(String mapInfoFileDir, String customLayerTag, String stateCode, boolean debug) {
+        boolean isSuccess = false;
         List<LoadingStatusInfo> statusInfoList = new ArrayList<>();
 
         List<Layer> layerList = reader.readAllTabFile(mapInfoFileDir);
         for (Layer layer : layerList) {
             logger.debug("Processing layer: " + layer.GetName());
+            cleanup.performCleanup(customLayerTag, stateCode);
             List<SpatialDataRow> rows = layerReader.readLayer(layer, stateCode);
             List<CustomTerritory> customTerritories = customTerritoryProcessor.process(rows, customLayerTag);
             if (debug)
                 dbWriter.debugDBInsert(customTerritories);
-            else
-                dbWriter.writeToDB(customTerritories);
+            else {
+                isSuccess = dbWriter.writeToDB(customTerritories);
+            }
 
-            LoadingStatusInfo statusInfo = validator.validate(rows.size(), customLayerTag, stateCode);
+            LoadingStatusInfo statusInfo;
+            statusInfo = isSuccess ? validator.validate(rows.size(), customLayerTag, stateCode) : new LoadingStatusInfo(layer.GetName(), customLayerTag, 0, 0, "Failed to load data.");
             statusInfo.setFileName(layer.GetName());
             statusInfoList.add(statusInfo);
 
